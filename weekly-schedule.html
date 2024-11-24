@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每週事項安排</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f7fbfc;
+            color: #34495e;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #2c3e50;
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin: 10px auto;
+            font-size: 1.2em;
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        select, button {
+            font-size: 1em;
+            margin: 5px;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #229954;
+        }
+        .delete-btn {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #e60000;
+        }
+    </style>
+</head>
+<body>
+    <h1>每週事項安排</h1>
+    <a href="index.html">回到代辦事項主頁</a>
+
+    <h2 style="text-align: center;">代辦事項清單</h2>
+    <table id="tasks-table">
+        <thead>
+            <tr>
+                <th>事項</th>
+                <th>截止日期</th>
+                <th>重要程度</th>
+                <th>分配至星期</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 代辦事項清單將插入到這裡 -->
+        </tbody>
+    </table>
+
+    <h2 style="text-align: center;">每週事項表格</h2>
+    <table id="weekly-table">
+        <thead>
+            <tr>
+                <th>星期一</th>
+                <th>星期二</th>
+                <th>星期三</th>
+                <th>星期四</th>
+                <th>星期五</th>
+                <th>星期六</th>
+                <th>星期日</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="monday"></td>
+                <td id="tuesday"></td>
+                <td id="wednesday"></td>
+                <td id="thursday"></td>
+                <td id="friday"></td>
+                <td id="saturday"></td>
+                <td id="sunday"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const tasksTable = document.getElementById('tasks-table').querySelector('tbody');
+        const weeklyTable = {
+            monday: document.getElementById('monday'),
+            tuesday: document.getElementById('tuesday'),
+            wednesday: document.getElementById('wednesday'),
+            thursday: document.getElementById('thursday'),
+            friday: document.getElementById('friday'),
+            saturday: document.getElementById('saturday'),
+            sunday: document.getElementById('sunday')
+        };
+
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let weeklyTasks = JSON.parse(localStorage.getItem('weeklyTasks')) || {
+            monday: [], tuesday: [], wednesday: [], thursday: [], 
+            friday: [], saturday: [], sunday: []
+        };
+
+        // 渲染代辦事項清單
+        function renderTasks() {
+            tasksTable.innerHTML = '';
+            tasks.forEach((task, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${task.task}</td>
+                    <td>${task.deadline}</td>
+                    <td>${task.priority}</td>
+                    <td>
+                        <select id="day-select-${index}">
+                            <option value="monday">星期一</option>
+                            <option value="tuesday">星期二</option>
+                            <option value="wednesday">星期三</option>
+                            <option value="thursday">星期四</option>
+                            <option value="friday">星期五</option>
+                            <option value="saturday">星期六</option>
+                            <option value="sunday">星期日</option>
+                        </select>
+                        <button onclick="assignTask(${index})">分配</button>
+                    </td>
+                `;
+                tasksTable.appendChild(row);
+            });
+        }
+
+        // 渲染每週事項表格
+        function renderWeeklyTable() {
+            for (let day in weeklyTable) {
+                weeklyTable[day].innerHTML = weeklyTasks[day].map((task, taskIndex) => `
+                    <div>
+                        <p>${task} <button class="delete-btn" onclick="removeTaskFromDay('${day}', ${taskIndex})">刪除</button></p>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 分配事項到指定的星期
+        function assignTask(index) {
+            const daySelect = document.getElementById(`day-select-${index}`);
+            const selectedDay = daySelect.value;
+            const task = tasks[index].task;
+
+            weeklyTasks[selectedDay].push(task);
+            localStorage.setItem('weeklyTasks', JSON.stringify(weeklyTasks));
+            renderWeeklyTable();
+        }
+
+        // 刪除從某個星期的事項
+        function removeTaskFromDay(day, taskIndex) {
+            weeklyTasks[day].splice(taskIndex, 1); // 刪除指定的事項
+            localStorage.setItem('weeklyTasks', JSON.stringify(weeklyTasks));
+            renderWeeklyTable();
+        }
+
+        // 初始渲染
+        renderTasks();
+        renderWeeklyTable();
+    </script>
+</body>
+</html>
+

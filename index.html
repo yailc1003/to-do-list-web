@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>哲妤的代辦事項紀錄</title>
+     <style>
+        body {
+            font-family: "Microsoft JhengHei", Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f4f8;
+            color: #34495e;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            color: #2c3e50;
+        }
+		a {
+            display: block;
+            text-align: center;
+            margin: 10px auto;
+            font-size: 1.2em;
+            text-decoration: none;
+            color: #3498db;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #2980b9;
+        }
+        form {
+            background-color: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+        form label {
+            font-size: 1.2em;
+            margin-right: 10px;
+            color: #2c3e50;
+        }
+        form input, form select, form button {
+            font-size: 1.1em;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        form button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        form button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #ecf0f1;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        th, td {
+            border: 1px solid #bdc3c7;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        td {
+            background-color: #ffffff;
+        }
+        .important {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        @media (max-width: 768px) {
+            form label, form input, form select, form button {
+                font-size: 1em;
+            }
+            table th, table td {
+                font-size: 1em;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>哲妤的代辦事項紀錄</h1>
+    <a href="weekly-schedule.html">查看每週安排</a>
+
+    <form id="todo-form">
+        <label>
+            事項：
+            <input type="text" id="task-input" required>
+        </label>
+        <label>
+            截止日期：
+            <input type="date" id="deadline-input" required>
+        </label>
+        <label>
+            重要程度：
+            <select id="priority-input">
+                <option value="高">高</option>
+                <option value="中">中</option>
+                <option value="低">低</option>
+            </select>
+        </label>
+        <button type="submit">添加事項</button>
+    </form>
+
+    <table id="todo-table">
+        <thead>
+            <tr>
+                <th>事項</th>
+                <th>截止日期</th>
+                <th>重要程度</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- 代辦事項列表將被插入到這裡 -->
+        </tbody>
+    </table>
+
+    <script>
+        const taskForm = document.getElementById('todo-form');
+        const taskTable = document.getElementById('todo-table').querySelector('tbody');
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // 排序代辦事項，將截止日期快的事項排前，且如果重要程度為高，顯示紅色
+        function sortTasks() {
+            tasks.sort((a, b) => {
+                const dateA = new Date(a.deadline);
+                const dateB = new Date(b.deadline);
+                return dateA - dateB; // 截止日期較近的事項排在前
+            });
+        }
+
+        // 將代辦事項渲染到表格
+        function renderTasks() {
+            sortTasks(); // 排序事項
+            taskTable.innerHTML = '';  // 清空表格
+            tasks.forEach((task, index) => {
+                const row = document.createElement('tr');
+                const taskPriorityClass = task.priority === '高' ? 'important' : '';  // 高優先級顯示紅色
+                row.innerHTML = `
+                    <td class="${taskPriorityClass}">${task.task}</td>
+                    <td>${task.deadline}</td>
+                    <td class="${taskPriorityClass}">${task.priority}</td>
+                    <td><button onclick="deleteTask(${index})">刪除</button></td>
+                `;
+                taskTable.appendChild(row);
+            });
+        }
+
+        // 添加代辦事項
+        taskForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // 防止表單提交刷新頁面
+
+            // 獲取輸入框的值
+            const taskInput = document.getElementById("task-input").value;
+            const deadlineInput = document.getElementById("deadline-input").value;
+            const priorityInput = document.getElementById("priority-input").value;
+
+            // 簡單檢查是否有輸入
+            if (!taskInput || !deadlineInput || !priorityInput) {
+                alert("請輸入完整的代辦事項！");
+                return;
+            }
+
+            // 創建新的代辦事項
+            const newTask = {
+                task: taskInput,
+                deadline: deadlineInput,
+                priority: priorityInput,
+            };
+
+            // 存入 localStorage
+            tasks.push(newTask);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            // 清空輸入框
+            document.getElementById("task-input").value = "";
+            document.getElementById("deadline-input").value = "";
+            document.getElementById("priority-input").value = "中"; // 默認選中 "中"
+
+            // 更新表格
+            renderTasks();
+        });
+
+        // 刪除代辦事項
+        function deleteTask(index) {
+            if (confirm('確定要刪除此事項嗎？')) {
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+            }
+        }
+
+        // 頁面載入時渲染事項
+        renderTasks();
+    </script>
+</body>
+</html>
+
+
