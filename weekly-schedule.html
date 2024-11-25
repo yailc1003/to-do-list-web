@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>每週事項安排</title>
-   <style>
+<style>
         body {
             font-family: "Microsoft JhengHei", Arial, sans-serif;
             margin: 20px;
@@ -28,35 +28,20 @@
         a:hover {
             color: #2980b9;
         }
-       table {
-    width: 100%;
-    max-width: 1000px; /* 將表格總寬度擴大 */
-    margin: 20px auto;
-    border-collapse: collapse;
-    background-color: #ffffff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    table-layout: auto; /* 調整為自動佈局，允許內容占用更多空間 */
-} table {
+        table {
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
             border-collapse: collapse;
             background-color: #ffffff;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            table-layout: fixed; /* 固定表格佈局，防止內容撐開 */
         }
         th, td {
-    border: 1px solid #bdc3c7;
-    padding: 12px;
-    text-align: center;
-    font-size: 1.1em;
-    word-wrap: break-word; /* 允許單字斷行 */
-    overflow: hidden; /* 隱藏超出內容 */
-    text-overflow: ellipsis; /* 超出內容用省略號表示 */
-    white-space: nowrap; /* 禁止換行 */
-    height: 80px; /* 固定單元格高度 */
-    min-width: 120px; /* 新增最小寬度，避免按鈕被擠壓 */
-}
+            border: 1px solid #bdc3c7;
+            padding: 12px;
+            text-align: center;
+            font-size: 1.1em;
+        }
         th {
             background-color: #3498db;
             color: white;
@@ -80,6 +65,14 @@
             background-color: #ff4d4d;
             color: white;
             border: none;
+            padding: 3px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #e60000;
+        }
+    </style>   border: none;
             padding: 3px 8px;
             border-radius: 5px;
             cursor: pointer;
